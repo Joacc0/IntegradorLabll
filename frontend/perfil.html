@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
     <title>Mi Perfil - Artesanos</title>
     <link rel="stylesheet" href="css/styles.css" />
 </head>
-
 <body>
     <div class="profile-container">
         <h2>Mi Perfil</h2>
@@ -26,11 +24,16 @@
             <label for="imagenPerfil">Imagen de perfil:</label>
             <input type="file" id="imagenPerfil" />
 
-            <img id="previewImagen" src="" alt="Imagen actual" width="100" style="display: none; margin-top: 10px" />
+            <img id="previewImagen" src="" alt="Imagen actual" width="100" style="display: none; margin-top: 10px;" />
 
             <button type="submit">Guardar Cambios</button>
         </form>
+
+        <!-- Botón para cerrar sesión -->
+        <button type="button" id="logoutBtn" style="margin-top: 15px; background-color: #e74c3c; color: white;">
+            Cerrar sesión
+        </button>
     </div>
 </body>
-
+<script src="js/auth.js"></script>
 </html>
