@@ -1,12 +1,20 @@
 const mongoose = require('mongoose');
 
-const albumSchema = new mongoose.Schema({
+const AlbumSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  description: { type: String, default: '' },
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  images: [{
+    url: String,
+    caption: String,
+    createdAt: { type: Date, default: Date.now }
+  }],
+  createdAt: { type: Date, default: Date.now }
+}, { 
+  validate: {
+    validator: function() { return this.images.length <= 20; },
+    message: 'Un álbum no puede contener más de 20 imágenes'
+  }
 });
 
-module.exports = mongoose.model('Album', albumSchema);
+module.exports = mongoose.model('Album', AlbumSchema);
