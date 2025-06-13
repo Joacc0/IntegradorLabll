@@ -1,48 +1,36 @@
+require('dotenv').config({ path: './env/.env' });
 const express = require('express');
-const mongoose = require('mongoose');
+const http = require('http');
+const socketio = require('socket.io');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
-
-// Importar rutas
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const albumRoutes = require('./routes/albums');
+const connectDB = require('./config/db');
+const routes = require('./routes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+});
+
+// Conectar a MongoDB
+connectDB();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Conexión a MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('Conectado a MongoDB'))
-.catch(err => console.error('Error de conexión a MongoDB:', err));
 
 // Rutas
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/albums', albumRoutes);
+app.use('/api', routes);
+
+// Configurar Socket.io
+require('./services/socketService')(io);
+
+// Manejo de errores
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
-
-// En server.js (después de app.listen)
-const io = require('socket.io')(server);
-
-io.on('connection', (socket) => {
-  socket.on('join', (userId) => {
-    socket.join(userId);
-  });
-  
-  socket.on('friendRequest', ({ to, from }) => {
-    io.to(to).emit('newFriendRequest', { from });
-  });
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
