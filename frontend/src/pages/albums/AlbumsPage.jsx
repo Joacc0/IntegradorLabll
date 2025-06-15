@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '.../../context/AuthContext'
+import { useAuth } from "../../context/AuthContext";
 import { getAlbums } from '../../services/albumService'
 import AlbumCard from '../../components/albums/AlbumCard'
 import { Link } from 'react-router-dom'
