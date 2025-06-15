@@ -1,12 +1,11 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+import authRoutes from './auth.js';  
+import userRoutes from './users.js';
+import albumRoutes from './albums.js';
+import commentRoutes from './comments.js';
+import notificationRoutes from './notifications.js';
 
-// Importar rutas
-const authRoutes = require('./auth');
-const userRoutes = require('./users');
-const albumRoutes = require('./albums');
-const commentRoutes = require('./comments');
-const notificationRoutes = require('./notifications');
+const router = Router();
 
 // Configurar rutas
 router.use('/auth', authRoutes);
@@ -15,4 +14,4 @@ router.use('/albums', albumRoutes);
 router.use('/comments', commentRoutes);
 router.use('/notifications', notificationRoutes);
 
-module.exports = router;
+export default router;  

@@ -1,15 +1,21 @@
-require('dotenv').config({ path: './env/.env' });
-const express = require('express');
-const http = require('http');
-const socketio = require('socket.io');
-const cors = require('cors');
-const connectDB = require('./config/db');
-const routes = require('./routes');
-const errorHandler = require('./middleware/errorHandler');
+import dotenv from 'dotenv';
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import routes from './routes/index.js';
+import errorHandler from './middleware/errorHandler.js';
+import socketService from './services/socketService.js';
+
+// Configurar dotenv
+dotenv.config({ path: './env/.env' });
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, {
+
+// Configurar Socket.io con ES Modules
+const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE']
@@ -27,7 +33,7 @@ app.use(express.json());
 app.use('/api', routes);
 
 // Configurar Socket.io
-require('./services/socketService')(io);
+socketService(io);
 
 // Manejo de errores
 app.use(errorHandler);
