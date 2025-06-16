@@ -3,7 +3,7 @@ import HomePage from './pages/home/HomePage'
 import AlbumsPage from './pages/albums/AlbumsPage'
 import AlbumDetailPage from './pages/albums/AlbumDetailPage'
 import LoginPage from './pages/auth/LoginPage'
-import PrivateRoute from './components/shared/PrivateRoute'
+import PrivateRoute from './components/shared/PrivateRoute.jsx'
 import Header from './components/shared/Header' // Necesitarías crearlo
 import NotFoundPage from './pages/404'
 

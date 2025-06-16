@@ -10,18 +10,22 @@ const AlbumsPage = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchAlbums = async () => {
-      try {
-        const data = await getAlbums(user._id)
-        setAlbums(data)
-      } catch (error) {
-        console.error('Error fetching albums:', error)
-      } finally {
-        setLoading(false)
-      }
+  console.log('User ID:', user?._id) // ← Verifica que tengas ID
+  if (!user?._id) return;
+
+  const fetchAlbums = async () => {
+    try {
+      const data = await getAlbums(user._id)
+      console.log('Albums data:', data) // ← Verifica la respuesta
+      setAlbums(data)
+    } catch (error) {
+      console.error('Error fetching albums:', error)
+    } finally {
+      setLoading(false)
     }
-    fetchAlbums()
-  }, [user._id])
+  }
+  fetchAlbums()
+}, [user?._id])
 
   if (loading) return <div>Cargando álbumes...</div>
 
