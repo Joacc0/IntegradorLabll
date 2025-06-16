@@ -1,35 +1,19 @@
-const mongoose = require('mongoose');
+export default (sequelize, DataTypes) => {
+  const Notification = sequelize.define('Notification', {
+    type: {
+      type: DataTypes.ENUM('friend_request', 'comment', 'like'),
+      allowNull: false
+    },
+    isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
+  });
 
-const NotificationSchema = new mongoose.Schema({
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  type: {
-    type: String,
-    enum: ['friendRequest', 'comment', 'friendRequestAccepted'],
-    required: true
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  relatedEntity: {  // Puede ser ID de álbum, comentario, etc.
-    type: mongoose.Schema.Types.ObjectId
-  },
-  isRead: {
-    type: Boolean,
-    default: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  Notification.associate = (models) => {
+    Notification.belongsTo(models.User, { as: 'sender' });
+    Notification.belongsTo(models.User, { as: 'receiver' });
+  };
 
-module.exports = mongoose.model('Notification', NotificationSchema);
+  return Notification;
+};

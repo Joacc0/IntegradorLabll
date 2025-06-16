@@ -1,0 +1,17 @@
+{
+  "development": {
+    "username": "root",
+    "password": "password_dev",
+    "database": "artesanos_dev",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "usuario_prod",
+    "password": "password_prod",
+    "database": "artesanos_prod",
+    "host": "servidor_prod",
+    "dialect": "mysql",
+    "ssl": true
+  }
+}

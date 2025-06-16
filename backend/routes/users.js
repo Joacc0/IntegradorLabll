@@ -1,13 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const {
+import { Router } from 'express';
+import {
   getUsers,
   getUser,
   updateUser,
   sendFriendRequest,
   respondFriendRequest
-} = require('../controllers/userController');
-const { protect } = require('../middleware/auth');
+} from '../controllers/userController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = Router();
 
 router.get('/', getUsers);
 router.get('/:id', getUser);
@@ -15,4 +16,4 @@ router.put('/:id', protect, updateUser);
 router.post('/:id/friend-request', protect, sendFriendRequest);
 router.post('/:id/respond-friend-request', protect, respondFriendRequest);
 
-module.exports = router;
+export default router;

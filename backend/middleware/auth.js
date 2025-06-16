@@ -1,40 +1,46 @@
-const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/errorResponse');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import db from '../models/index.js';
 
-// Proteger rutas
-exports.protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  
+  if (req.headers.authorization?.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
-    return next(new ErrorResponse('No autorizado para acceder a esta ruta', 401));
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Acceso no autorizado. Por favor inicie sesión.' 
+    });
   }
 
   try {
-    // Verificar token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Obtener usuario del token
-    req.user = await User.findById(decoded.id);
-    
-    if (!req.user) {
-      return next(new ErrorResponse('Usuario no encontrado con este token', 404));
+    const user = await db.User.findByPk(decoded.id, {
+      attributes: ['id', 'firstName', 'lastName', 'email', 'profileImage'],
+      raw: true
+    });
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Usuario no encontrado' 
+      });
     }
 
+    req.user = user;
     next();
+    
   } catch (err) {
-    return next(new ErrorResponse('No autorizado para acceder a esta ruta', 401));
+    const errorMessage = err.name === 'TokenExpiredError' 
+      ? 'Token expirado. Por favor inicie sesión nuevamente.'
+      : 'Token inválido';
+    
+    return res.status(401).json({ 
+      success: false, 
+      error: errorMessage 
+    });
   }
-};
-
-// Middleware para manejar operaciones asíncronas
-exports.asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
 };

@@ -1,7 +1,8 @@
-const Notification = require('../models/Notification');
-const User = require('../models/User');
+import Notification from '../models/Notification.js';
+import User from '../models/User.js';
+import Album from '../models/Album.js';
 
-module.exports = function(io) {
+const socketService = (io) => {
   io.on('connection', (socket) => {
     console.log(`Nueva conexión Socket.io: ${socket.id}`);
 
@@ -10,7 +11,6 @@ module.exports = function(io) {
       socket.join(userId);
       console.log(`Usuario ${userId} se unió a su sala de notificaciones`);
       
-      // Enviar notificaciones no leídas al conectar
       try {
         const unreadNotifications = await Notification.find({
           recipient: userId,
@@ -38,7 +38,6 @@ module.exports = function(io) {
           return;
         }
 
-        // Crear notificación en la base de datos
         const notification = await Notification.create({
           recipient: receiverId,
           sender: senderId,
@@ -46,7 +45,6 @@ module.exports = function(io) {
           content: `${sender.firstName} ${sender.lastName} te envió una solicitud de amistad`
         });
 
-        // Emitir notificación en tiempo real
         io.to(receiverId.toString()).emit('newFriendRequest', {
           notificationId: notification._id,
           sender: {
@@ -73,7 +71,6 @@ module.exports = function(io) {
           return;
         }
 
-        // Crear notificación en la base de datos
         const notification = await Notification.create({
           recipient: requesterId,
           sender: recipientId,
@@ -81,7 +78,6 @@ module.exports = function(io) {
           content: `${recipient.firstName} ${recipient.lastName} aceptó tu solicitud de amistad`
         });
 
-        // Emitir notificación en tiempo real
         io.to(requesterId.toString()).emit('friendRequestAccepted', {
           notificationId: notification._id,
           recipient: {
@@ -101,13 +97,11 @@ module.exports = function(io) {
     // Manejar nuevos comentarios
     socket.on('newComment', async ({ imageOwnerId, commenterId, imageId, albumId, commentText }) => {
       try {
-        // Verificar que no sea el dueño de la imagen comentándose a sí mismo
         if (imageOwnerId.toString() === commenterId.toString()) return;
 
         const commenter = await User.findById(commenterId).select('firstName lastName profileImage');
         const truncatedComment = commentText.substring(0, 30) + (commentText.length > 30 ? '...' : '');
 
-        // Crear notificación en la base de datos
         const notification = await Notification.create({
           recipient: imageOwnerId,
           sender: commenterId,
@@ -116,7 +110,6 @@ module.exports = function(io) {
           relatedEntity: imageId
         });
 
-        // Emitir notificación en tiempo real
         io.to(imageOwnerId.toString()).emit('commentNotification', {
           notificationId: notification._id,
           commenter: {
@@ -147,7 +140,6 @@ module.exports = function(io) {
           return;
         }
 
-        // Crear notificación en la base de datos
         const notification = await Notification.create({
           recipient: recipientId,
           sender: sharerId,
@@ -156,7 +148,6 @@ module.exports = function(io) {
           relatedEntity: albumId
         });
 
-        // Emitir notificación en tiempo real
         io.to(recipientId.toString()).emit('albumSharedNotification', {
           notificationId: notification._id,
           sharer: {
@@ -183,3 +174,5 @@ module.exports = function(io) {
     });
   });
 };
+
+export default socketService;

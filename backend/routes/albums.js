@@ -1,6 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const {
+import { Router } from 'express';
+import {
   getAlbums,
   getAlbum,
   createAlbum,
@@ -9,19 +8,36 @@ const {
   addImageToAlbum,
   deleteImageFromAlbum,
   shareAlbum
-} = require('../controllers/albumController');
-const { protect } = require('../middleware/auth');
+} from '../controllers/albumController.js'; // Extensión .js obligatoria
+import { protect } from '../middleware/auth.js';
 
-router.get('/', protect, getAlbums);
-router.get('/:id', protect, getAlbum);
-router.post('/', protect, createAlbum);
-router.put('/:id', protect, updateAlbum);
-router.delete('/:id', protect, deleteAlbum);
-router.post('/:id/images', protect, addImageToAlbum);
-router.delete('/:albumId/images/:imageId', protect, deleteImageFromAlbum);
-router.post('/:id/share', protect, shareAlbum);
+const router = Router();
 
-// Ruta para obtener álbumes de un usuario específico
-router.get('/user/:userId', protect, getAlbums);
+// Todas las rutas requieren autenticación (middleware protect)
+router.use(protect);
 
-module.exports = router;
+// Rutas principales
+router.route('/')
+  .get(getAlbums)
+  .post(createAlbum);
+
+router.route('/:id')
+  .get(getAlbum)
+  .put(updateAlbum)
+  .delete(deleteAlbum);
+
+// Rutas para imágenes
+router.route('/:id/images')
+  .post(addImageToAlbum);
+
+router.route('/:albumId/images/:imageId')
+  .delete(deleteImageFromAlbum);
+
+// Ruta para compartir
+router.route('/:id/share')
+  .post(shareAlbum);
+
+// Ruta para álbumes de usuario específico
+router.get('/user/:userId', getAlbums);
+
+export default router;

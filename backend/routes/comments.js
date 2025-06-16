@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getCommentsForImage,
   addCommentToImage,
   deleteComment
-} = require('../controllers/commentController');
-const { protect } = require('../middleware/auth');
+} from '../controllers/commentController.js';
+import { protect } from '../middleware/auth.js';
+
+const router = express.Router();
 
 router.get('/image/:imageId', protect, getCommentsForImage);
 router.post('/image/:imageId', protect, addCommentToImage);
 router.delete('/:id', protect, deleteComment);
 
-module.exports = router;
+export default router;

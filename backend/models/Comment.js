@@ -1,31 +1,62 @@
-const mongoose = require('mongoose');
+export default (sequelize, DataTypes) => {
+  const Comment = sequelize.define('Comment', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: 'El comentario no puede estar vacío'
+        },
+        len: {
+          args: [1, 2000],
+          msg: 'El comentario debe tener entre 1 y 2000 caracteres'
+        }
+      }
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    albumId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    timestamps: true,
+    paranoid: true, // Para soft delete
+    indexes: [
+      {
+        fields: ['userId']
+      },
+      {
+        fields: ['albumId']
+      }
+    ]
+  });
 
-const CommentSchema = new mongoose.Schema({
-  content: {
-    type: String,
-    required: [true, 'Por favor ingrese un comentario'],
-    maxlength: [500, 'El comentario no puede exceder los 500 caracteres'],
-    trim: true
-  },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  image: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Album.images',
-    required: true
-  },
-  album: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Album',
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  Comment.associate = (models) => {
+    Comment.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'author'
+    });
+    
+    Comment.belongsTo(models.Album, {
+      foreignKey: 'albumId',
+      onDelete: 'CASCADE' // Eliminar comentarios si se borra el álbum
+    });
+  };
 
-module.exports = mongoose.model('Comment', CommentSchema);
+  // Métodos personalizados (opcional)
+  Comment.prototype.getPreview = function() {
+    return this.text.length > 50 
+      ? this.text.substring(0, 50) + '...' 
+      : this.text;
+  };
+
+  return Comment;
+};
